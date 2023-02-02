@@ -8,29 +8,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
 /* eslint-disable @typescript-eslint/no-confusing-void-expression */
 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 // const ctx = new (window.AudioContext || window.webkitAudioContext)();
 const ctx = new window.AudioContext();
 let sampleSource;
+const gainNode = ctx.createGain();
+gainNode.gain.value = 0.5;
 let oscillator;
 let isPlaying = false;
 // 音源を取得しAudioBuffer形式に変換して返す関数
 const setupSe = () => __awaiter(void 0, void 0, void 0, function* () {
-    // const response = await fetch("./audio/se.mp3");
-    // const arrayBuffer = await response.arrayBuffer();
-    // // Web Audio APIで使える形式に変換
-    // const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    const audioBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
-    // 一様乱数でノイズ生成
-    // データを格納した実際の ArrayBuffer が得られる．
-    const nowBuffering = audioBuffer.getChannelData(0);
-    for (let i = 0; i < nowBuffering.length; ++i) {
-        // Math.random() は [0; 1.0]. 音声は [-1.0; 1.0] である必要がある
-        // nowBuffering[i] = Math.random() * 2 - 1;
-        nowBuffering[i] = Math.sin(i / 100.0);
-    }
+    const response = yield fetch("./audio/se.mp3");
+    const arrayBuffer = yield response.arrayBuffer();
+    // Web Audio APIで使える形式に変換
+    const audioBuffer = yield ctx.decodeAudioData(arrayBuffer);
+    // const audioBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
+    // // 一様乱数でノイズ生成
+    // // データを格納した実際の ArrayBuffer が得られる．
+    // const nowBuffering = audioBuffer.getChannelData(0);
+    // for (let i = 0; i < nowBuffering.length; ++i) {
+    //   // Math.random() は [0; 1.0]. 音声は [-1.0; 1.0] である必要がある
+    //   // nowBuffering[i] = Math.random() * 2 - 1;
+    //   nowBuffering[i] = Math.sin(i / 100.0);
+    // }
     return audioBuffer;
 });
 // AudioBufferをctxに接続し再生する関数
@@ -53,7 +55,6 @@ const playSe = () => __awaiter(void 0, void 0, void 0, function* () {
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 (_a = document.querySelector("#play-se")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", playSe);
 const stopSe = () => {
-    console.log("stop se");
     sampleSource === null || sampleSource === void 0 ? void 0 : sampleSource.stop();
     isPlaying = false;
 };
@@ -65,8 +66,9 @@ const playOsc = (type) => {
         return;
     oscillator = ctx.createOscillator();
     oscillator.type = type; // sine, square, sawtooth, triangleがある
-    oscillator.frequency.setValueAtTime(440, ctx.currentTime);
-    oscillator.connect(ctx.destination);
+    oscillator.frequency.value = 440;
+    // oscillator.connect(ctx.destination);
+    oscillator.connect(gainNode).connect(ctx.destination);
     oscillator.start();
     isPlaying = true;
 };
@@ -83,6 +85,11 @@ const stopOsc = () => {
     isPlaying = false;
 };
 (_g = document.querySelector("#stop-osc")) === null || _g === void 0 ? void 0 : _g.addEventListener("click", stopOsc);
+(_h = document
+    .querySelector("#osc-gain")) === null || _h === void 0 ? void 0 : _h.addEventListener("change", (payload) => {
+    const strValue = payload.target.value;
+    gainNode.gain.value = parseFloat(strValue);
+});
 const audioElement = document.querySelector("audio");
 // Web Audio API内で使える形に変換
 if (audioElement !== null) {
@@ -99,10 +106,10 @@ if (audioElement !== null) {
             console.log("play");
         });
     };
-    (_h = document.querySelector("#play-music")) === null || _h === void 0 ? void 0 : _h.addEventListener("click", playAudio);
+    (_j = document.querySelector("#play-music")) === null || _j === void 0 ? void 0 : _j.addEventListener("click", playAudio);
     const pauseAudio = () => {
         audioElement === null || audioElement === void 0 ? void 0 : audioElement.pause();
     };
     // audioElementを一時停止する
-    (_j = document.querySelector("#pause-music")) === null || _j === void 0 ? void 0 : _j.addEventListener("click", pauseAudio);
+    (_k = document.querySelector("#pause-music")) === null || _k === void 0 ? void 0 : _k.addEventListener("click", pauseAudio);
 }

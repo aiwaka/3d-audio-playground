@@ -3,26 +3,31 @@
 // const ctx = new (window.AudioContext || window.webkitAudioContext)();
 const ctx = new window.AudioContext();
 
+interface HTMLEvent<T extends EventTarget> extends Event {
+  target: T;
+}
 let sampleSource: AudioBufferSourceNode;
+const gainNode = ctx.createGain();
+gainNode.gain.value = 0.5;
 let oscillator: OscillatorNode;
 let isPlaying = false;
 
 // 音源を取得しAudioBuffer形式に変換して返す関数
 const setupSe = async (): Promise<AudioBuffer> => {
-  // const response = await fetch("./audio/se.mp3");
-  // const arrayBuffer = await response.arrayBuffer();
-  // // Web Audio APIで使える形式に変換
-  // const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+  const response = await fetch("./audio/se.mp3");
+  const arrayBuffer = await response.arrayBuffer();
+  // Web Audio APIで使える形式に変換
+  const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
 
-  const audioBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
-  // 一様乱数でノイズ生成
-  // データを格納した実際の ArrayBuffer が得られる．
-  const nowBuffering = audioBuffer.getChannelData(0);
-  for (let i = 0; i < nowBuffering.length; ++i) {
-    // Math.random() は [0; 1.0]. 音声は [-1.0; 1.0] である必要がある
-    // nowBuffering[i] = Math.random() * 2 - 1;
-    nowBuffering[i] = Math.sin(i / 100.0);
-  }
+  // const audioBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
+  // // 一様乱数でノイズ生成
+  // // データを格納した実際の ArrayBuffer が得られる．
+  // const nowBuffering = audioBuffer.getChannelData(0);
+  // for (let i = 0; i < nowBuffering.length; ++i) {
+  //   // Math.random() は [0; 1.0]. 音声は [-1.0; 1.0] である必要がある
+  //   // nowBuffering[i] = Math.random() * 2 - 1;
+  //   nowBuffering[i] = Math.sin(i / 100.0);
+  // }
   return audioBuffer;
 };
 
@@ -47,7 +52,6 @@ const playSe = async (): Promise<void> => {
 document.querySelector("#play-se")?.addEventListener("click", playSe);
 
 const stopSe = (): void => {
-  console.log("stop se");
   sampleSource?.stop();
   isPlaying = false;
 };
@@ -59,8 +63,9 @@ const playOsc = (type: OscillatorType): void => {
   if (isPlaying) return;
   oscillator = ctx.createOscillator();
   oscillator.type = type; // sine, square, sawtooth, triangleがある
-  oscillator.frequency.setValueAtTime(440, ctx.currentTime);
-  oscillator.connect(ctx.destination);
+  oscillator.frequency.value = 440;
+  // oscillator.connect(ctx.destination);
+  oscillator.connect(gainNode).connect(ctx.destination);
   oscillator.start();
   isPlaying = true;
 };
@@ -81,6 +86,13 @@ const stopOsc = (): void => {
   isPlaying = false;
 };
 document.querySelector("#stop-osc")?.addEventListener("click", stopOsc);
+
+document
+  .querySelector("#osc-gain")
+  ?.addEventListener("change", (payload: HTMLEvent<HTMLInputElement>) => {
+    const strValue = payload.target.value;
+    gainNode.gain.value = parseFloat(strValue);
+  });
 
 const audioElement = document.querySelector("audio");
 // Web Audio API内で使える形に変換
