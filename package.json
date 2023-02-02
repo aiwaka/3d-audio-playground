@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "tsc index.ts"
+    "build": "tsc"
   },
   "dependencies": {
     "typescript": "*"
