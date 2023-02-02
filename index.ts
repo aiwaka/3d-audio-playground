@@ -3,6 +3,8 @@
 // const ctx = new (window.AudioContext || window.webkitAudioContext)();
 const ctx = new window.AudioContext();
 
+type SourceType = "music" | "se" | "sine" | "tri" | "saw" | "square";
+
 interface HTMLEvent<T extends EventTarget> extends Event {
   target: T;
 }
@@ -11,6 +13,25 @@ const gainNode = ctx.createGain();
 gainNode.gain.value = 0.5;
 let oscillator: OscillatorNode;
 let isPlaying = false;
+
+const playMusic = (): void => {
+  const audioElement = document.querySelector("audio");
+  if (audioElement != null) {
+    const track = ctx.createMediaElementSource(audioElement);
+    if (ctx.state === "suspended") {
+      ctx.resume().catch(() => {
+        console.log("resume");
+      });
+    }
+    // 出力につなげる
+    track.connect(ctx.destination);
+    audioElement.play().catch(() => {
+      console.log("play");
+    });
+  } else {
+    alert("cannot use audio element");
+  }
+};
 
 // 音源を取得しAudioBuffer形式に変換して返す関数
 const setupSe = async (): Promise<AudioBuffer> => {
@@ -31,61 +52,43 @@ const setupSe = async (): Promise<AudioBuffer> => {
   return audioBuffer;
 };
 
-// AudioBufferをctxに接続し再生する関数
-const playSample = (_ctx: AudioContext, audioBuffer: AudioBuffer): void => {
-  sampleSource = _ctx.createBufferSource();
-  // 変換されたバッファーを音源として設定
-  sampleSource.buffer = audioBuffer;
-  // 出力につなげる
-  sampleSource.connect(_ctx.destination);
-  sampleSource.start();
-  isPlaying = true;
-};
-
 const playSe = async (): Promise<void> => {
   // 再生中なら二重に再生されないようにする
   if (isPlaying) return;
   const sample = await setupSe();
-  playSample(ctx, sample);
+  sampleSource = ctx.createBufferSource();
+  // 変換されたバッファーを音源として設定
+  sampleSource.buffer = sample;
+  // 出力につなげる
+  sampleSource.connect(ctx.destination);
+  sampleSource.start();
+  isPlaying = true;
 };
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-document.querySelector("#play-se")?.addEventListener("click", playSe);
 
 const stopSe = (): void => {
   sampleSource?.stop();
   isPlaying = false;
 };
 // oscillatorを破棄し再生を停止する
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-document.querySelector("#stop-se")?.addEventListener("click", stopSe);
 
 const playOsc = (type: OscillatorType): void => {
   if (isPlaying) return;
   oscillator = ctx.createOscillator();
   oscillator.type = type; // sine, square, sawtooth, triangleがある
   oscillator.frequency.value = 440;
-  // oscillator.connect(ctx.destination);
   oscillator.connect(gainNode).connect(ctx.destination);
   oscillator.start();
   isPlaying = true;
 };
-document
-  .querySelector("#play-sine")
-  ?.addEventListener("click", () => playOsc("sine"));
-document
-  .querySelector("#play-saw")
-  ?.addEventListener("click", () => playOsc("sawtooth"));
-document
-  .querySelector("#play-tri")
-  ?.addEventListener("click", () => playOsc("triangle"));
-document
-  .querySelector("#play-sq")
-  ?.addEventListener("click", () => playOsc("square"));
+
 const stopOsc = (): void => {
   oscillator?.stop();
   isPlaying = false;
 };
-document.querySelector("#stop-osc")?.addEventListener("click", stopOsc);
+document.querySelector("#stop")?.addEventListener("click", () => {
+  stopOsc();
+  stopSe();
+});
 
 document
   .querySelector("#osc-gain")
@@ -94,29 +97,44 @@ document
     gainNode.gain.value = parseFloat(strValue);
   });
 
-const audioElement = document.querySelector("audio");
-// Web Audio API内で使える形に変換
-if (audioElement !== null) {
-  const track = ctx.createMediaElementSource(audioElement);
-
-  const playAudio = (): void => {
-    if (ctx.state === "suspended") {
-      ctx.resume().catch(() => {
-        console.log("resume");
-      });
+// ラジオボタンで選ばれた音源を流す処理を行う
+document.querySelector("#play")?.addEventListener("click", () => {
+  const radioElement = document.getElementsByName("source");
+  let sourceType: SourceType | null = null;
+  for (const n of radioElement) {
+    if (n instanceof HTMLInputElement && n.checked) {
+      sourceType = n.value as SourceType;
     }
-    // 出力につなげる
-    track.connect(ctx.destination);
-    audioElement.play().catch(() => {
-      console.log("play");
-    });
-  };
+  }
 
-  document.querySelector("#play-music")?.addEventListener("click", playAudio);
-
-  const pauseAudio = (): void => {
-    audioElement?.pause();
-  };
-  // audioElementを一時停止する
-  document.querySelector("#pause-music")?.addEventListener("click", pauseAudio);
-}
+  switch (sourceType) {
+    case "music":
+      playMusic();
+      break;
+    case "se":
+      playSe().catch(() => {
+        console.log("");
+      });
+      break;
+    case "sine":
+      playOsc("sine");
+      break;
+    case "tri":
+      playOsc("triangle");
+      break;
+    case "saw":
+      playOsc("sawtooth");
+      break;
+    case "square":
+      playOsc("square");
+      break;
+    default:
+      console.log("source type default");
+  }
+});
+document.querySelector("#pause")?.addEventListener("click", () => {
+  const audioElement = document.querySelector("audio");
+  if (audioElement != null) {
+    audioElement.pause();
+  }
+});
