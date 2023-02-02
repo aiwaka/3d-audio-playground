@@ -9,7 +9,15 @@
     <button id="play-music">play-music</button>
     <button id="pause-music">pause-music</button>
     <button id="play-se">play-se</button>
-    <button id="pause-se">pause-se</button>
+    <button id="stop-se">stop-se</button>
+
+    <div class="osc-container">
+        <button id="play-sine">play:sine</button>
+        <button id="play-saw">play:saw</button>
+        <button id="play-tri">play:tri</button>
+        <button id="play-sq">play:sq</button>
+        <button id="stop-osc">stop</button>
+    </div>
     <audio id="music" crossorigin="anonymous" src="./audio/hot_tide.mp3"></audio>
   </body>
 
@@ -18,6 +26,9 @@
     div{
       padding-bottom: 40px;
       border-bottom: 2px solid #666;
+    }
+    div.osc-container {
+        border: 1px solid #777;
     }
   </style>
 </html>
