@@ -10,6 +10,8 @@ interface HTMLEvent<T extends EventTarget> extends Event {
 }
 const gainNode = ctx.createGain();
 gainNode.gain.value = 0.2;
+let lfoNode: OscillatorNode;
+let lfoDepth: GainNode;
 let isPlaying = false;
 
 let sourceNode:
@@ -126,6 +128,16 @@ document.querySelector("#play")?.addEventListener("click", () => {
       audioElement.play().catch(() => {});
     }
   } else {
+    if (sourceNode instanceof OscillatorNode) {
+      // lfoを設定
+      lfoNode = ctx.createOscillator();
+      lfoDepth = ctx.createGain();
+      lfoDepth.gain.value = 50;
+      lfoNode.type = "sine";
+      lfoNode.frequency.value = 10.0;
+      lfoNode.connect(lfoDepth).connect(sourceNode.frequency);
+      lfoNode.start();
+    }
     sourceNode?.start();
   }
   isPlaying = true;
