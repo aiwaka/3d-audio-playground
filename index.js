@@ -1,102 +1,65 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var _a, _b, _c, _d;
+var _a, _b, _c;
 /* eslint-disable @typescript-eslint/no-confusing-void-expression */
 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 // const ctx = new (window.AudioContext || window.webkitAudioContext)();
 const ctx = new window.AudioContext();
-let sampleSource;
 const gainNode = ctx.createGain();
-gainNode.gain.value = 0.5;
-let oscillator;
+gainNode.gain.value = 0.2;
 let isPlaying = false;
-const playMusic = () => {
+let sourceNode = null;
+const setMusicSource = () => {
+    if (ctx.state === "suspended") {
+        ctx.resume().catch(() => {
+            console.log("resume");
+        });
+        return;
+    }
     const audioElement = document.querySelector("audio");
     if (audioElement != null) {
-        const track = ctx.createMediaElementSource(audioElement);
-        if (ctx.state === "suspended") {
-            ctx.resume().catch(() => {
-                console.log("resume");
-            });
-        }
-        // 出力につなげる
-        track.connect(ctx.destination);
-        audioElement.play().catch(() => {
-            console.log("play");
-        });
-    }
-    else {
-        alert("cannot use audio element");
+        sourceNode = ctx.createMediaElementSource(audioElement);
     }
 };
-// 音源を取得しAudioBuffer形式に変換して返す関数
-const setupSe = () => __awaiter(void 0, void 0, void 0, function* () {
-    const response = yield fetch("./audio/se.mp3");
-    const arrayBuffer = yield response.arrayBuffer();
-    // Web Audio APIで使える形式に変換
-    const audioBuffer = yield ctx.decodeAudioData(arrayBuffer);
-    // const audioBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
-    // // 一様乱数でノイズ生成
-    // // データを格納した実際の ArrayBuffer が得られる．
-    // const nowBuffering = audioBuffer.getChannelData(0);
-    // for (let i = 0; i < nowBuffering.length; ++i) {
-    //   // Math.random() は [0; 1.0]. 音声は [-1.0; 1.0] である必要がある
-    //   // nowBuffering[i] = Math.random() * 2 - 1;
-    //   nowBuffering[i] = Math.sin(i / 100.0);
-    // }
-    return audioBuffer;
-});
-const playSe = () => __awaiter(void 0, void 0, void 0, function* () {
-    // 再生中なら二重に再生されないようにする
-    if (isPlaying)
-        return;
-    const sample = yield setupSe();
-    sampleSource = ctx.createBufferSource();
-    // 変換されたバッファーを音源として設定
-    sampleSource.buffer = sample;
-    // 出力につなげる
-    sampleSource.connect(ctx.destination);
-    sampleSource.start();
-    isPlaying = true;
-});
-const stopSe = () => {
-    sampleSource === null || sampleSource === void 0 ? void 0 : sampleSource.stop();
-    isPlaying = false;
+const setSeSource = () => {
+    //   const response = await fetch("./audio/se.mp3");
+    //   const arrayBuffer = await response.arrayBuffer();
+    //   // Web Audio APIで使える形式に変換
+    //   const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    const audioBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
+    // 一様乱数でノイズ生成
+    // データを格納した実際の ArrayBuffer が得られる．
+    const nowBuffering = audioBuffer.getChannelData(0);
+    for (let i = 0; i < nowBuffering.length; ++i) {
+        // Math.random() は [0; 1.0]. 音声は [-1.0; 1.0] である必要がある
+        nowBuffering[i] = Math.random() * 2 - 1;
+    }
+    sourceNode = ctx.createBufferSource();
+    sourceNode.buffer = audioBuffer;
 };
-// oscillatorを破棄し再生を停止する
-const playOsc = (type) => {
-    if (isPlaying)
-        return;
-    oscillator = ctx.createOscillator();
-    oscillator.type = type; // sine, square, sawtooth, triangleがある
-    oscillator.frequency.value = 440;
-    oscillator.connect(gainNode).connect(ctx.destination);
-    oscillator.start();
-    isPlaying = true;
-};
-const stopOsc = () => {
-    oscillator === null || oscillator === void 0 ? void 0 : oscillator.stop();
-    isPlaying = false;
+const setOscSource = (type) => {
+    sourceNode = ctx.createOscillator();
+    sourceNode.type = type; // sine, square, sawtooth, triangleがある
+    sourceNode.frequency.value = 440;
 };
 (_a = document.querySelector("#stop")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
-    stopOsc();
-    stopSe();
+    if (sourceNode instanceof MediaElementAudioSourceNode) {
+        const audioElement = document.querySelector("audio");
+        if (audioElement != null) {
+            audioElement.pause();
+        }
+    }
+    else {
+        sourceNode === null || sourceNode === void 0 ? void 0 : sourceNode.stop();
+    }
+    isPlaying = false;
 });
 (_b = document
     .querySelector("#osc-gain")) === null || _b === void 0 ? void 0 : _b.addEventListener("change", (payload) => {
     const strValue = payload.target.value;
     gainNode.gain.value = parseFloat(strValue);
 });
-// ラジオボタンで選ばれた音源を流す処理を行う
-(_c = document.querySelector("#play")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => {
+// ラジオボタンで選択されたソースの種類を取得
+const getSourceType = () => {
     const radioElement = document.getElementsByName("source");
     let sourceType = null;
     for (const n of radioElement) {
@@ -104,34 +67,50 @@ const stopOsc = () => {
             sourceType = n.value;
         }
     }
+    return sourceType;
+};
+// ラジオボタンで選ばれた音源を流す処理を行う
+(_c = document.querySelector("#play")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => {
+    if (isPlaying) {
+        console.log("now playing");
+        return;
+    }
+    const sourceType = getSourceType();
     switch (sourceType) {
         case "music":
-            playMusic();
+            setMusicSource();
             break;
         case "se":
-            playSe().catch(() => {
-                console.log("");
-            });
+            setSeSource();
             break;
         case "sine":
-            playOsc("sine");
+            setOscSource("sine");
             break;
         case "tri":
-            playOsc("triangle");
+            setOscSource("triangle");
             break;
         case "saw":
-            playOsc("sawtooth");
+            setOscSource("sawtooth");
             break;
         case "square":
-            playOsc("square");
+            setOscSource("square");
             break;
         default:
             console.log("source type default");
+            return;
     }
-});
-(_d = document.querySelector("#pause")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => {
-    const audioElement = document.querySelector("audio");
-    if (audioElement != null) {
-        audioElement.pause();
+    // ソースノードが存在しているはずなのでゲインと出力に接続
+    sourceNode === null || sourceNode === void 0 ? void 0 : sourceNode.connect(gainNode).connect(ctx.destination);
+    if (sourceNode instanceof MediaElementAudioSourceNode) {
+        const audioElement = document.querySelector("audio");
+        if (audioElement != null) {
+            // NOTE: Web Audio APIの仕様でいきなり音を流すことができない.
+            // そのため最初に音楽を流そうとすると失敗する（他のアクションならstart扱いだから可能？）.
+            audioElement.play().catch(() => { });
+        }
     }
+    else {
+        sourceNode === null || sourceNode === void 0 ? void 0 : sourceNode.start();
+    }
+    isPlaying = true;
 });
