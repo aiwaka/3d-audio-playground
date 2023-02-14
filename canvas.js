@@ -12,9 +12,10 @@ const readHrtf = async (path) => {
     }
     return result;
 };
-// [-2^{15}, 2^{15}-1]の数値を[0, 511]に変換する
+// [-2^{15}, 2^{15}-1]の数値を[0, 511]に変換する.
+// canvasは左上が原点なので, 左下が原点に見える修正もする（単に符号を反転させるだけ）.
 const numToY = (num) => {
-    return ((num + 32768.0) / 65536.0) * 511.0;
+    return ((-num + 32768.0) / 65536.0) * 511.0;
 };
 // canvas要素の描画コンテクストを取得する操作
 const getCanvasRenderingContext2D = () => {
