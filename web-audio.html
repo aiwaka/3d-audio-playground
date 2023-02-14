@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Audio API</title>
+  </head>
+  <body>
+    <fieldset>
+    <input type="radio" id="music" name="source" value="music" />
+    <label for="music">music</label>
+    <input type="radio" id="se" name="source" value="se" />
+    <label for="se">se</label>
+    <input type="radio" id="sine" name="source" value="sine" />
+    <label for="sine">sine</label>
+    <input type="radio" id="tri" name="source" value="tri" />
+    <label for="tri">tri</label>
+    <input type="radio" id="saw" name="source" value="saw" />
+    <label for="saw">saw</label>
+    <input type="radio" id="square" name="source" value="square" />
+    <label for="square">square</label>
+    <audio id="music" crossorigin="anonymous" src="./audio/hot_tide.mp3"></audio>
+    <button id="play">play</button>
+    <button id="stop">stop</button>
+    <label for="osc-gain">osc-gain</label>
+    <input id="osc-gain" type="range" value="0.2" min="0.0" max="1.0" step="0.1" />
+  </fieldset>
+  </body>
+
+  <script src="./index.js"></script>
+  <style>
+    div{
+      padding-bottom: 40px;
+      border-bottom: 2px solid #666;
+    }
+    div.osc-container {
+        border: 1px solid #777;
+    }
+  </style>
+</html>

@@ -6,9 +6,8 @@ var _a, _b, _c;
 const ctx = new window.AudioContext();
 const gainNode = ctx.createGain();
 gainNode.gain.value = 0.2;
-let lfoNode = ctx.createOscillator();
-let depth = ctx.createGain();
-depth.gain.value = 50;
+let lfoNode;
+let lfoDepth;
 let isPlaying = false;
 let sourceNode = null;
 const setMusicSource = () => {
@@ -116,11 +115,11 @@ const getSourceType = () => {
         if (sourceNode instanceof OscillatorNode) {
             // lfoを設定
             lfoNode = ctx.createOscillator();
-            depth = ctx.createGain();
-            depth.gain.value = 50;
+            lfoDepth = ctx.createGain();
+            lfoDepth.gain.value = 50;
             lfoNode.type = "sine";
             lfoNode.frequency.value = 10.0;
-            lfoNode.connect(depth).connect(sourceNode.frequency);
+            lfoNode.connect(lfoDepth).connect(sourceNode.frequency);
             lfoNode.start();
         }
         sourceNode === null || sourceNode === void 0 ? void 0 : sourceNode.start();
