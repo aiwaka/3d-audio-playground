@@ -1,5 +1,4 @@
 "use strict";
-var _a, _b, _c;
 /* eslint-disable @typescript-eslint/no-confusing-void-expression */
 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 // const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -43,7 +42,7 @@ const setOscSource = (type) => {
     sourceNode.type = type; // sine, square, sawtooth, triangleがある
     sourceNode.frequency.value = 440;
 };
-(_a = document.querySelector("#stop")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
+document.querySelector("#stop")?.addEventListener("click", () => {
     if (sourceNode instanceof MediaElementAudioSourceNode) {
         const audioElement = document.querySelector("audio");
         if (audioElement != null) {
@@ -51,12 +50,13 @@ const setOscSource = (type) => {
         }
     }
     else {
-        sourceNode === null || sourceNode === void 0 ? void 0 : sourceNode.stop();
+        sourceNode?.stop();
     }
     isPlaying = false;
 });
-(_b = document
-    .querySelector("#osc-gain")) === null || _b === void 0 ? void 0 : _b.addEventListener("change", (payload) => {
+document
+    .querySelector("#osc-gain")
+    ?.addEventListener("change", (payload) => {
     const strValue = payload.target.value;
     gainNode.gain.value = parseFloat(strValue);
 });
@@ -72,7 +72,7 @@ const getSourceType = () => {
     return sourceType;
 };
 // ラジオボタンで選ばれた音源を流す処理を行う
-(_c = document.querySelector("#play")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", () => {
+document.querySelector("#play")?.addEventListener("click", () => {
     if (isPlaying) {
         console.log("now playing");
         return;
@@ -102,7 +102,7 @@ const getSourceType = () => {
             return;
     }
     // ソースノードが存在しているはずなのでゲインと出力に接続
-    sourceNode === null || sourceNode === void 0 ? void 0 : sourceNode.connect(gainNode).connect(ctx.destination);
+    sourceNode?.connect(gainNode).connect(ctx.destination);
     if (sourceNode instanceof MediaElementAudioSourceNode) {
         const audioElement = document.querySelector("audio");
         if (audioElement != null) {
@@ -122,7 +122,7 @@ const getSourceType = () => {
             lfoNode.connect(lfoDepth).connect(sourceNode.frequency);
             lfoNode.start();
         }
-        sourceNode === null || sourceNode === void 0 ? void 0 : sourceNode.start();
+        sourceNode?.start();
     }
     isPlaying = true;
 });

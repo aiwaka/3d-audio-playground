@@ -6,12 +6,21 @@
     <title>Web Audio API</title>
   </head>
   <body>
+    <h2 id="filepath-display"></h2>
     <canvas width="512" height="512"></canvas>
     <fieldset>
-    <label for="elev">elev</label>
-    <input type="number" id="elev" value="0" min="-40" max="90" step="10" />
+        <label for="lr">LR</label>
+        <select id="lr" value="left">
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+        </select>
+        <label for="elev">elevation</label>
+        <input type="number" id="elev" value="0" min="-40" max="90" step="10" />
+        <label for="azi">azimuth</label>
+        <input type="number" id="azi" value="0" />
     </fieldset>
     <button id="load-hrtf">load HRTF</button>
+    <button id="clear-canvas">clear</button>
   </body>
 
   <script src="./canvas.js"></script>
