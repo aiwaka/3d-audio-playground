@@ -48,7 +48,9 @@ const changeFilepathDisplay = (path) => {
     span.innerText = path;
 };
 document.querySelector("#load-hrtf")?.addEventListener("click", async () => {
-    const path = makeFilepath();
+    const lrForm = document.querySelector("#lr");
+    const lr = lrForm.value === "left" ? "L" : "R";
+    const path = makeFilepath(lr);
     changeFilepathDisplay(path);
     // readHrtf("./audio/full/elev0/L0e000a.dat")
     readHrtf(path)

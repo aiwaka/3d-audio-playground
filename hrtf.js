@@ -12,11 +12,9 @@ const readHrtf = async (path) => {
     return result;
 };
 // フォームの値からHRTFデータのファイル名を作成する.
-const makeFilepath = () => {
-    const lrForm = document.querySelector("#lr");
+const makeFilepath = (lr) => {
     const elevForm = document.querySelector("#elev");
     const aziForm = document.querySelector("#azi");
-    const lr = lrForm.value === "left" ? "L" : "R";
     const elev = elevForm.value;
     const aziValue = aziForm.value;
     // 右のhrtfは左のものを対称に考えたものを使う.

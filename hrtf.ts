@@ -13,11 +13,9 @@ const readHrtf = async (path: string): Promise<number[]> => {
 };
 
 // フォームの値からHRTFデータのファイル名を作成する.
-const makeFilepath = (): string => {
-  const lrForm = document.querySelector("#lr") as HTMLSelectElement;
+const makeFilepath = (lr: "L" | "R"): string => {
   const elevForm = document.querySelector("#elev") as HTMLInputElement;
   const aziForm = document.querySelector("#azi") as HTMLInputElement;
-  const lr = lrForm.value === "left" ? "L" : "R";
   const elev = elevForm.value;
   const aziValue = aziForm.value;
   // 右のhrtfは左のものを対称に考えたものを使う.
