@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
