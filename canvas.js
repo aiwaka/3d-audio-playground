@@ -28,6 +28,9 @@ const getCanvasRenderingContext2D = () => {
     }
     return null;
 };
+const LINE_COLOR_LIST = ["skyblue", "orange", "green", "gold", "purple"];
+// 描いた線の数を保存する
+let lineNum = 0;
 const drawGraph = (data) => {
     const ctx = getCanvasRenderingContext2D();
     if (ctx !== null) {
@@ -36,6 +39,8 @@ const drawGraph = (data) => {
         for (let i = 0; i < 512; i++) {
             ctx.lineTo(i, numToY(data[i]));
         }
+        ctx.strokeStyle = LINE_COLOR_LIST[lineNum % LINE_COLOR_LIST.length];
+        lineNum += 1;
         ctx.stroke();
     }
 };
@@ -46,6 +51,7 @@ const clearGraph = () => {
         const ctx = canvas.getContext("2d");
         if (ctx !== null) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            lineNum = 0;
         }
     }
 };
