@@ -30,7 +30,7 @@ const getCanvasRenderingContext2D = (): CanvasRenderingContext2D | null => {
   return null;
 };
 
-const LINE_COLOR_LIST = ["skyblue", "orange", "green", "gold", "purple"];
+const LINE_COLOR_LIST = ["blue", "orange", "green", "magenta", "gray"];
 // 描いた線の数を保存する
 let lineNum = 0;
 const drawGraph = (data: number[]) => {
@@ -65,10 +65,14 @@ const makeFilepath = (): string => {
   const aziForm = document.querySelector("#azi") as HTMLInputElement;
   const lr = lrForm.value === "left" ? "L" : "R";
   const elev = elevForm.value;
-  const azi = aziForm.value;
-  const paddedAzi = azi.padStart(3, "0");
+  const aziValue = aziForm.value;
+  // 右のhrtfは左のものを対称に考えたものを使う.
+  // 刻みが整数でない方位角に対してもうまくいくのでok.
+  const azi =
+    lr === "L" ? aziValue : ((360 - parseInt(aziValue)) % 360).toString();
   // NOTE: padStartはES1027準拠らしいのでtsconfig.jsonのtargetをesnextに変更した.
-  const path = `./audio/full/elev${elev}/${lr}${elev}e${paddedAzi}a.dat`;
+  const paddedAzi = azi.padStart(3, "0");
+  const path = `./audio/full/elev${elev}/L${elev}e${paddedAzi}a.dat`;
   return path;
 };
 // filepath-displayを書き換える
