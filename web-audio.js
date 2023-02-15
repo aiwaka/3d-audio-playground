@@ -1,4 +1,3 @@
-"use strict";
 /* eslint-disable @typescript-eslint/no-confusing-void-expression */
 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 // const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -126,3 +125,4 @@ document.querySelector("#play")?.addEventListener("click", () => {
     }
     isPlaying = true;
 });
+export { ctx };

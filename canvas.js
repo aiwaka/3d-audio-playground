@@ -1,17 +1,4 @@
-"use strict";
-const readHrtf = async (path) => {
-    const response = await fetch(path);
-    //  バイナリをarrayBuffer形式で保持
-    const hrtfBuffer = await response.arrayBuffer();
-    // バイナリを読み出すためのビューを作成
-    const hrtfView = new DataView(hrtfBuffer);
-    const result = [];
-    for (let i = 0; i < 1024; i += 2) {
-        // ビッグエンディアンを明示し, 符号付き16bit整数としてバイナリを読み出してリストに保存する.
-        result.push(hrtfView.getInt16(i, false));
-    }
-    return result;
-};
+import { makeFilepath, readHrtf } from "./hrtf.js";
 // [-2^{15}, 2^{15}-1]の数値を[0, 511]に変換する.
 // canvasは左上が原点なので, 左下が原点に見える修正もする（単に符号を反転させるだけ）.
 const numToY = (num) => {
@@ -54,22 +41,6 @@ const clearGraph = () => {
             lineNum = 0;
         }
     }
-};
-// フォームの値からHRTFデータのファイル名を作成する.
-const makeFilepath = () => {
-    const lrForm = document.querySelector("#lr");
-    const elevForm = document.querySelector("#elev");
-    const aziForm = document.querySelector("#azi");
-    const lr = lrForm.value === "left" ? "L" : "R";
-    const elev = elevForm.value;
-    const aziValue = aziForm.value;
-    // 右のhrtfは左のものを対称に考えたものを使う.
-    // 刻みが整数でない方位角に対してもうまくいくのでok.
-    const azi = lr === "L" ? aziValue : ((360 - parseInt(aziValue)) % 360).toString();
-    // NOTE: padStartはES1027準拠らしいのでtsconfig.jsonのtargetをesnextに変更した.
-    const paddedAzi = azi.padStart(3, "0");
-    const path = `./audio/full/elev${elev}/L${elev}e${paddedAzi}a.dat`;
-    return path;
 };
 // filepath-displayを書き換える
 const changeFilepathDisplay = (path) => {

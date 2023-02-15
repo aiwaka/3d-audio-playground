@@ -142,3 +142,5 @@ document.querySelector("#play")?.addEventListener("click", () => {
   }
   isPlaying = true;
 });
+
+export { ctx };
