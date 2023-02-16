@@ -4,3 +4,5 @@ node_modules/
 *.mp3
 *.tar.Z
 full/
+*.zip
+bin_dfeq/
