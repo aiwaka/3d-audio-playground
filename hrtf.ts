@@ -1,5 +1,8 @@
 const readHrtf = async (path: string): Promise<number[]> => {
   const response = await fetch(path);
+  if (response.status === 404) {
+    throw new Error("指定されたHRTFが存在しません。");
+  }
   //  バイナリをarrayBuffer形式で保持
   const hrtfBuffer = await response.arrayBuffer();
   // バイナリを読み出すためのビューを作成
