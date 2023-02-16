@@ -1,8 +1,4 @@
 import { makeFilepath, readHrtf } from "./hrtf.js";
-import { HTMLEvent } from "./web-audio.js";
-
-// const gainNode = ctx.createGain();
-// gainNode.gain.value = 0.2;
 
 let isPlaying = false;
 
@@ -18,13 +14,14 @@ const makeBufferFromNumArray = (
   ctx: AudioContext,
   array: number[]
 ): AudioBuffer => {
-  if (array.length !== 512)
+  if (array.length !== 512) {
     throw new Error("サンプルの長さが512ではありません。");
+  }
   // 512サンプルのバッファを確保.
   const audioBuffer = ctx.createBuffer(1, 512, 44100);
   const nowBuffering = audioBuffer.getChannelData(0);
   for (let i = 0; i < nowBuffering.length; ++i) {
-    // Math.random() は [0; 1.0]. 音声は [-1.0; 1.0] である必要がある
+    // 音声は [-1.0; 1.0] である必要がある
     nowBuffering[i] = array[i] / 65536.0;
   }
   return audioBuffer;
