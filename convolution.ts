@@ -81,8 +81,12 @@ const run = async () => {
 
   // ゲインノードを作る
   const gainNode = ctx.createGain();
-  const gainElement = document.querySelector<HTMLInputElement>("#osc-gain");
-  gainNode.gain.value = parseFloat(gainElement ? gainElement.value : "0");
+  const gainElement = document.querySelector<HTMLInputElement>("#distance-bar");
+  // [1, 11]が入力. 1のとき1.0で, -1乗オーダーで減衰させる.
+  const value = parseFloat(gainElement ? gainElement.value : "0");
+  gainNode.gain.value = 1 / value;
+  console.log(gainNode.gain.value);
+  // TODO: 距離依存のローパスフィルターを入れたい.
 
   // ノードを接続
   sourceNode.connect(splitter);

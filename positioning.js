@@ -53,6 +53,23 @@ const drawFaceShape = () => {
         aziCtx.arc(20, 50, 10, (Math.PI / 180) * (90 - crossAngle), (Math.PI / 180) * (270 + crossAngle));
         aziCtx.stroke();
     }
+    const distsourceCtx = getCanvasRenderingContext2D("distance-source-canvas");
+    if (distsourceCtx) {
+        distsourceCtx.beginPath();
+        distsourceCtx.strokeRect(0, 10, 10, 20);
+        distsourceCtx.moveTo(10, 10);
+        distsourceCtx.lineTo(20, 0);
+        distsourceCtx.lineTo(20, 40);
+        distsourceCtx.lineTo(10, 30);
+        distsourceCtx.stroke();
+    }
+    const distListenerCtx = getCanvasRenderingContext2D("distance-listener-canvas");
+    if (distListenerCtx) {
+        distListenerCtx.beginPath();
+        distListenerCtx.moveTo(20, 25);
+        distListenerCtx.arc(10, 25, 10, 0, Math.PI * 2);
+        distListenerCtx.stroke();
+    }
 };
 /**
  * 仰角に対し, とることができる可能な方位角のセットを返す.
@@ -156,6 +173,16 @@ const getAziValue = () => {
     return azi;
 };
 /**
+ * [1, 10]をとる.
+ */
+const getDistanceValue = () => {
+    const distanceElement = document.querySelector("#distance-bar");
+    if (!distanceElement) {
+        throw new Error("距離指定ができません。");
+    }
+    return parseFloat(distanceElement.value);
+};
+/**
  * ボックスに含まれるラヂオボタン（azi-option）をすべて消去する.
  */
 const clearAziOption = () => {
@@ -232,10 +259,28 @@ const onAziChange = () => {
         displayElement.innerHTML = azi.toString();
     }
 };
+const onDistanceChanged = () => {
+    const distance = getDistanceValue();
+    const displayElement = document.querySelector("#distance-display");
+    if (displayElement) {
+        displayElement.innerHTML = distance.toString();
+    }
+    const canvasElement = document.querySelector("#distance-source-canvas");
+    if (canvasElement) {
+        // [1, 11]を[150, 0]にマップ
+        canvasElement.style.left = ((11 - distance) * 15).toString() + "px";
+    }
+};
 window.addEventListener("load", () => {
     drawFaceShape();
     createElevSelector();
     // イベントリスナをセットした後初期化のため一度だけ実行
     createAziSelector(0);
+    onDistanceChanged();
+});
+document
+    .querySelector("#distance-bar")
+    ?.addEventListener("input", () => {
+    onDistanceChanged();
 });
 export { getElevValue, getAziValue };

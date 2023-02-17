@@ -8,28 +8,27 @@
   <body>
     <fieldset id="angle-specifier-container">
       <div class="angle-specifier" id="elev-box">
-        <label for="gui-elev">ELEV</label>
+        <label for="gui-elev">Elevation</label>
         <canvas id="elev-canvas" width="100" height="100"></canvas>
         <div id="elev-display">0</div>
       </div>
-      <div  class="angle-specifier" id="azi-box">
-        <label for="gui-azi">AZI</label>
+      <div class="angle-specifier" id="azi-box">
+        <label for="gui-azi">Azimuth</label>
         <canvas id="azi-canvas" width="100" height="100"></canvas>
         <div id="azi-display">0</div>
+      </div>
+      <div class="angle-specifier" id="distance-box">
+        <label for="gui-distance">Distance</label>
+        <canvas id="distance-source-canvas" width="40" height="40"></canvas>
+        <canvas id="distance-listener-canvas" width="20" height="40"></canvas>
+        <input id="distance-bar" type="range" value="6" min="1.0" max="11.0" step="0.5" />
+        <div id="distance-display">0</div>
       </div>
     </fieldset>
 
     <fieldset>
       <button id="play">play</button>
-      <label for="osc-gain">osc-gain</label>
-      <input id="osc-gain" type="range" value="0.2" min="0.0" max="1.0" step="0.1" />
     </fieldset>
-    <!-- <fieldset>
-      <label for="elev">elevation</label>
-      <input type="number" id="elev" value="0" min="-40" max="90" step="10" />
-      <label for="azi">azimuth</label>
-      <input type="number" id="azi" value="0" />
-    </fieldset> -->
   </body>
 
   <script src="./convolution.js" type="module"></script>
@@ -48,7 +47,7 @@
     } */
     #angle-specifier-container {
       display: flex;
-
+      flex-wrap: wrap;
     }
     .angle-specifier {
       width: 200px;
@@ -64,6 +63,15 @@
     #azi-canvas {
       position: absolute;
       left: 50px;
+      top: 100px;
+    }
+    #distance-source-canvas {
+      position: absolute;
+      top: 100px;
+    }
+    #distance-listener-canvas {
+      position: absolute;
+      right: 0px;
       top: 100px;
     }
   </style>

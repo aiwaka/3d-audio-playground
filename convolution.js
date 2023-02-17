@@ -70,8 +70,11 @@ const run = async () => {
     const merger = ctx.createChannelMerger(2);
     // ゲインノードを作る
     const gainNode = ctx.createGain();
-    const gainElement = document.querySelector("#osc-gain");
-    gainNode.gain.value = parseFloat(gainElement ? gainElement.value : "0");
+    const gainElement = document.querySelector("#distance-bar");
+    // [1, 11]が入力. 1のとき1.0で, -1乗オーダーで減衰させる.
+    const value = parseFloat(gainElement ? gainElement.value : "0");
+    gainNode.gain.value = 1 / value;
+    console.log(gainNode.gain.value);
     // ノードを接続
     sourceNode.connect(splitter);
     // 両方のチャンネルを各コンボルバーに渡す.
