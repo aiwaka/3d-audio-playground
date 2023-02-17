@@ -93,6 +93,8 @@ const getAvailableAzimuthList = (elev) => {
 // ラヂオボタンの縦横サイズ. 規定で13px.
 const RADIO_SIZE = 13.0;
 const RADIO_SIZE_HALF = RADIO_SIZE / 2.0;
+// 仰角0, 方位角0の頭部中心とボタンの距離.
+const BASIC_RADIUS = 80.0;
 /**
  * 仰角を指定するためのラヂオボタン入力要素を生成する.
  */
@@ -105,9 +107,8 @@ const createElevSelector = () => {
     const posStyle = (angle) => {
         // canvasに合わせて角度を補正し, ラジアンに合わせた角度.
         const radian = (Math.PI / 180) * (180 + angle);
-        const radius = 80;
-        const x = radius * Math.cos(radian) + 150 - RADIO_SIZE_HALF;
-        const y = radius * Math.sin(radian) + 150 - RADIO_SIZE_HALF;
+        const x = BASIC_RADIUS * Math.cos(radian) + 150 - RADIO_SIZE_HALF;
+        const y = BASIC_RADIUS * Math.sin(radian) + 150 - RADIO_SIZE_HALF;
         return `position:absolute;left:${x}px;top:${y}px;`;
     };
     const elevList = Array.from(Array(14).keys()).map((num) => (num - 4) * 10);
@@ -174,7 +175,6 @@ const createAziSelector = (prevAzi) => {
         throw new Error("方位角指定のHTML要素が見つかりません。");
     }
     const elev = getElevValue();
-    // const prevAzi = getAziValue();
     const aziList = getAvailableAzimuthList(elev);
     // aziListの中でprevAziに最も近いものを初期値として使う.
     let defaultAzi = 0;
@@ -189,7 +189,7 @@ const createAziSelector = (prevAzi) => {
     const posStyle = (angle) => {
         // canvasに合わせて角度を補正し, ラジアンに合わせた角度.
         const radian = (Math.PI / 180) * (angle - 90);
-        const radius = 80;
+        const radius = BASIC_RADIUS * Math.cos((Math.PI / 180) * elev);
         const x = radius * Math.cos(radian) + 100 - RADIO_SIZE_HALF;
         const y = radius * Math.sin(radian) + 150 - RADIO_SIZE_HALF;
         return `position:absolute;left:${x}px;top:${y}px;`;
@@ -209,6 +209,7 @@ const createAziSelector = (prevAzi) => {
 window.addEventListener("load", () => {
     drawFaceShape();
     createElevSelector();
+    // 仰角の各ボタンにイベントリスナを付与
     const elevElement = document.getElementsByName("elev-option");
     for (const el of elevElement) {
         if (el instanceof HTMLInputElement) {
@@ -219,7 +220,7 @@ window.addEventListener("load", () => {
             });
         }
     }
-    // イベントリスナをセットした後0度として一度だけ実行
+    // イベントリスナをセットした後初期化のため一度だけ実行
     createAziSelector(0);
 });
 export {};
