@@ -74,7 +74,7 @@ const run = async () => {
     // [1, 11]が入力. 1のとき1.0で, -1乗オーダーで減衰させる.
     const value = parseFloat(gainElement ? gainElement.value : "0");
     gainNode.gain.value = 1 / value;
-    console.log(gainNode.gain.value);
+    // TODO: 距離依存のローパスフィルターを入れたい.
     // ノードを接続
     sourceNode.connect(splitter);
     // 両方のチャンネルを各コンボルバーに渡す.
