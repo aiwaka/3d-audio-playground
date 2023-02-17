@@ -1,4 +1,5 @@
-import { makeFilepath, readHrtf } from "./hrtf.js";
+import { readHrtf } from "./hrtf.js";
+import { getAziValue, getElevValue } from "./positioning.js";
 
 let isPlaying = false;
 
@@ -27,6 +28,13 @@ const makeBufferFromNumArray = (
   return audioBuffer;
 };
 
+const makeHrtfName = (lr: "L" | "R", elev: number, azi: number) => {
+  const correctedAzi = lr === "L" ? azi : (360 - azi) % 360;
+  const paddedAzi = correctedAzi.toString().padStart(3, "0");
+  const path = `./audio/full/elev${elev}/L${elev}e${paddedAzi}a.dat`;
+  return path;
+};
+
 const run = async () => {
   // hrtfが44100hzのため, 合わせるためにオプションを設定.
   const ctx = new window.AudioContext({ sampleRate: 44100 });
@@ -41,8 +49,10 @@ const run = async () => {
   sourceNode.buffer = sourceBuf;
 
   // hrtfを用意する.
-  const leftHrtfPath = makeFilepath("L");
-  const rightHrtfPath = makeFilepath("R");
+  const elev = getElevValue();
+  const azi = getAziValue();
+  const leftHrtfPath = makeHrtfName("L", elev, azi);
+  const rightHrtfPath = makeHrtfName("R", elev, azi);
   const leftHrtfArray = await readHrtf(leftHrtfPath);
   const rightHrtfArray = await readHrtf(rightHrtfPath);
   const leftHrtfBuf = makeBufferFromNumArray(ctx, leftHrtfArray);

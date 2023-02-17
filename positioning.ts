@@ -231,7 +231,29 @@ const createAziSelector = (prevAzi: number) => {
       newInputElement.checked = true;
     }
     newInputElement.setAttribute("style", posStyle(aziAngle));
+    newInputElement.addEventListener("change", () => {
+      onAziChange();
+    });
     box.appendChild(newInputElement);
+  }
+};
+
+const onElevChange = () => {
+  const elev = getElevValue();
+  const displayElement = document.querySelector("#elev-display");
+  if (displayElement) {
+    displayElement.innerHTML = elev.toString();
+  }
+  const prevAzi = getAziValue();
+  clearAziOption();
+  createAziSelector(prevAzi);
+  onAziChange();
+};
+const onAziChange = () => {
+  const azi = getAziValue();
+  const displayElement = document.querySelector("#azi-display");
+  if (displayElement) {
+    displayElement.innerHTML = azi.toString();
   }
 };
 
@@ -243,9 +265,7 @@ window.addEventListener("load", () => {
   for (const el of elevElement) {
     if (el instanceof HTMLInputElement) {
       el.addEventListener("change", () => {
-        const prevAzi = getAziValue();
-        clearAziOption();
-        createAziSelector(prevAzi);
+        onElevChange();
       });
     }
   }
@@ -253,4 +273,4 @@ window.addEventListener("load", () => {
   createAziSelector(0);
 });
 
-export {};
+export { getElevValue, getAziValue };
