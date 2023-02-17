@@ -45,7 +45,6 @@ const run = async () => {
     const azi = getAziValue();
     const leftHrtfPath = makeHrtfName("L", elev, azi);
     const rightHrtfPath = makeHrtfName("R", elev, azi);
-    console.log(leftHrtfPath, rightHrtfPath);
     const leftHrtfArray = await readHrtf(leftHrtfPath);
     const rightHrtfArray = await readHrtf(rightHrtfPath);
     const leftHrtfBuf = makeBufferFromNumArray(ctx, leftHrtfArray);

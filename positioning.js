@@ -120,6 +120,11 @@ const createElevSelector = () => {
         if (elevAngle === 0) {
             newInputElement.checked = true;
         }
+        // 仰角の各ボタンにイベントリスナを付与
+        newInputElement.addEventListener("change", () => {
+            onElevChange();
+        });
+        // これで位置を指定
         newInputElement.setAttribute("style", posStyle(elevAngle));
         box.appendChild(newInputElement);
     }
@@ -202,10 +207,10 @@ const createAziSelector = (prevAzi) => {
         if (aziAngle === defaultAzi) {
             newInputElement.checked = true;
         }
-        newInputElement.setAttribute("style", posStyle(aziAngle));
         newInputElement.addEventListener("change", () => {
             onAziChange();
         });
+        newInputElement.setAttribute("style", posStyle(aziAngle));
         box.appendChild(newInputElement);
     }
 };
@@ -230,15 +235,6 @@ const onAziChange = () => {
 window.addEventListener("load", () => {
     drawFaceShape();
     createElevSelector();
-    // 仰角の各ボタンにイベントリスナを付与
-    const elevElement = document.getElementsByName("elev-option");
-    for (const el of elevElement) {
-        if (el instanceof HTMLInputElement) {
-            el.addEventListener("change", () => {
-                onElevChange();
-            });
-        }
-    }
     // イベントリスナをセットした後初期化のため一度だけ実行
     createAziSelector(0);
 });
