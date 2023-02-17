@@ -90,8 +90,107 @@ const getAvailableAzimuthList = (elev) => {
     }
     return result;
 };
+// ラヂオボタンの縦横サイズ. 規定で13px.
+const RADIO_SIZE = 13.0;
+const RADIO_SIZE_HALF = RADIO_SIZE / 2.0;
+/**
+ * 仰角を指定するためのラヂオボタン入力要素を生成する.
+ */
+const createElevSelector = () => {
+    const box = document.querySelector("#elev-box");
+    if (!box) {
+        throw new Error("仰角指定のHTML要素が見つかりません。");
+    }
+    // 角度から位置のスタイル文字列を返すクロージャ
+    const posStyle = (angle) => {
+        // canvasに合わせて角度を補正し, ラジアンに合わせた角度.
+        const radian = (Math.PI / 180) * (180 + angle);
+        const radius = 80;
+        const x = radius * Math.cos(radian) + 150 - RADIO_SIZE_HALF;
+        const y = radius * Math.sin(radian) + 150 - RADIO_SIZE_HALF;
+        return `position:absolute;left:${x}px;top:${y}px;`;
+    };
+    const elevList = Array.from(Array(14).keys()).map((num) => (num - 4) * 10);
+    for (const elevAngle of elevList) {
+        const newInputElement = document.createElement("input");
+        newInputElement.type = "radio";
+        newInputElement.name = "elev-option";
+        newInputElement.value = elevAngle.toString();
+        if (elevAngle === 0) {
+            newInputElement.checked = true;
+        }
+        newInputElement.setAttribute("style", posStyle(elevAngle));
+        box.appendChild(newInputElement);
+    }
+};
+/**
+ * ボックスに含まれるラヂオボタン（azi-option）をすべて消去する.
+ */
+const clearAziOption = () => {
+    const options = document.getElementsByName("azi-option");
+    const len = options.length;
+    if (len === 0) {
+        return;
+    }
+    const parent = options[0].parentNode;
+    // removeの挙動的にこのようにするのが正しいらしい.
+    for (let i = 0; i < len; i++) {
+        parent?.removeChild(options[0]);
+    }
+};
+/**
+ * 方位角を指定するためのラヂオボタン入力要素を生成する.
+ * 仰角が変更されたら生成し直すようにする.
+ */
+const createAziSelector = () => {
+    const elevElement = document.getElementsByName("elev-option");
+    let elev = 1000;
+    for (const el of elevElement) {
+        if (el instanceof HTMLInputElement && el.checked) {
+            // チェックされているのは一つだけのはずなのでこのようにする.
+            clearAziOption();
+            elev = parseInt(el.value);
+        }
+    }
+    console.log(elev);
+    const aziList = getAvailableAzimuthList(elev);
+    const box = document.querySelector("#azi-box");
+    if (!box) {
+        throw new Error("方位角指定のHTML要素が見つかりません。");
+    }
+    // 角度から位置のスタイル文字列を返すクロージャ
+    const posStyle = (angle) => {
+        // canvasに合わせて角度を補正し, ラジアンに合わせた角度.
+        const radian = (Math.PI / 180) * (angle - 90);
+        const radius = 80;
+        const x = radius * Math.cos(radian) + 100 - RADIO_SIZE_HALF;
+        const y = radius * Math.sin(radian) + 150 - RADIO_SIZE_HALF;
+        return `position:absolute;left:${x}px;top:${y}px;`;
+    };
+    for (const aziAngle of aziList) {
+        const newInputElement = document.createElement("input");
+        newInputElement.type = "radio";
+        newInputElement.name = "azi-option";
+        newInputElement.value = aziAngle.toString();
+        if (aziAngle === 0) {
+            newInputElement.checked = true;
+        }
+        newInputElement.setAttribute("style", posStyle(aziAngle));
+        box.appendChild(newInputElement);
+    }
+};
 window.addEventListener("load", () => {
-    console.log(getAvailableAzimuthList(80));
     drawFaceShape();
+    createElevSelector();
+    const elevElement = document.getElementsByName("elev-option");
+    for (const el of elevElement) {
+        if (el instanceof HTMLInputElement) {
+            el.addEventListener("change", (ev) => {
+                createAziSelector();
+            });
+        }
+    }
+    // イベントリスナをセットした後0度として一度だけ実行
+    createAziSelector();
 });
 export {};
