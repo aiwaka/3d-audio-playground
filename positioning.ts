@@ -85,6 +85,39 @@ const drawFaceShape = () => {
     aziCtx.stroke();
   }
 };
-window.addEventListener("load", drawFaceShape);
+
+/**
+ * 仰角に対し, とることができる可能な方位角のセットを返す.
+ * @param elev 仰角
+ */
+const getAvailableAzimuthList = (elev: number): number[] => {
+  let delta = 5.0;
+  if (Math.abs(elev) === 30) {
+    delta = 6.0;
+  } else if (Math.abs(elev) === 40) {
+    delta = 6.43;
+  } else if (elev === 50) {
+    delta = 8.0;
+  } else if (elev === 60) {
+    delta = 10.0;
+  } else if (elev === 70) {
+    delta = 15.0;
+  } else if (elev === 80) {
+    delta = 30.0;
+  } else if (elev === 90) {
+    delta = 361.0;
+  } else if (![-20, -10, 0, 10, 20].includes(elev)) {
+    throw new Error("仰角が可能な値ではありません。");
+  }
+  const result: number[] = [];
+  for (let angle = 0.0; angle < 360.0; angle += delta) {
+    result.push(Math.round(angle));
+  }
+  return result;
+};
+
+window.addEventListener("load", () => {
+  drawFaceShape();
+});
 
 export {};
