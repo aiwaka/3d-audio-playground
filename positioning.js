@@ -123,6 +123,32 @@ const createElevSelector = () => {
         box.appendChild(newInputElement);
     }
 };
+const getElevValue = () => {
+    const elevElement = document.getElementsByName("elev-option");
+    let elev = undefined;
+    for (const el of elevElement) {
+        if (el instanceof HTMLInputElement && el.checked) {
+            elev = parseInt(el.value);
+        }
+    }
+    if (elev === undefined) {
+        throw new Error("仰角が不正です。");
+    }
+    return elev;
+};
+const getAziValue = () => {
+    const aziElement = document.getElementsByName("azi-option");
+    let azi = undefined;
+    for (const el of aziElement) {
+        if (el instanceof HTMLInputElement && el.checked) {
+            azi = parseInt(el.value);
+        }
+    }
+    if (azi === undefined) {
+        throw new Error("方位角が不正です。");
+    }
+    return azi;
+};
 /**
  * ボックスに含まれるラヂオボタン（azi-option）をすべて消去する.
  */
@@ -142,21 +168,22 @@ const clearAziOption = () => {
  * 方位角を指定するためのラヂオボタン入力要素を生成する.
  * 仰角が変更されたら生成し直すようにする.
  */
-const createAziSelector = () => {
-    const elevElement = document.getElementsByName("elev-option");
-    let elev = 1000;
-    for (const el of elevElement) {
-        if (el instanceof HTMLInputElement && el.checked) {
-            // チェックされているのは一つだけのはずなのでこのようにする.
-            clearAziOption();
-            elev = parseInt(el.value);
-        }
-    }
-    console.log(elev);
-    const aziList = getAvailableAzimuthList(elev);
+const createAziSelector = (prevAzi) => {
     const box = document.querySelector("#azi-box");
     if (!box) {
         throw new Error("方位角指定のHTML要素が見つかりません。");
+    }
+    const elev = getElevValue();
+    // const prevAzi = getAziValue();
+    const aziList = getAvailableAzimuthList(elev);
+    // aziListの中でprevAziに最も近いものを初期値として使う.
+    let defaultAzi = 0;
+    let distance = 100000;
+    for (const val of aziList) {
+        if (Math.abs(prevAzi - val) < distance) {
+            distance = Math.abs(prevAzi - val);
+            defaultAzi = val;
+        }
     }
     // 角度から位置のスタイル文字列を返すクロージャ
     const posStyle = (angle) => {
@@ -172,7 +199,7 @@ const createAziSelector = () => {
         newInputElement.type = "radio";
         newInputElement.name = "azi-option";
         newInputElement.value = aziAngle.toString();
-        if (aziAngle === 0) {
+        if (aziAngle === defaultAzi) {
             newInputElement.checked = true;
         }
         newInputElement.setAttribute("style", posStyle(aziAngle));
@@ -185,12 +212,14 @@ window.addEventListener("load", () => {
     const elevElement = document.getElementsByName("elev-option");
     for (const el of elevElement) {
         if (el instanceof HTMLInputElement) {
-            el.addEventListener("change", (ev) => {
-                createAziSelector();
+            el.addEventListener("change", () => {
+                const prevAzi = getAziValue();
+                clearAziOption();
+                createAziSelector(prevAzi);
             });
         }
     }
     // イベントリスナをセットした後0度として一度だけ実行
-    createAziSelector();
+    createAziSelector(0);
 });
 export {};
